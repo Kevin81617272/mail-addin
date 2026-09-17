@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>프로젝트 메일 수신처</title>
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;margin:0;padding:16px;color:#1B1F2A;background:#F5F6FB;font-size:13px;}
+  h1{font-size:15px;margin:0 0 12px;}
+  select{width:100%;padding:9px;border-radius:8px;border:1px solid #E2E5EE;font-size:13px;margin-bottom:12px;background:#fff;}
+  .row{display:flex;gap:8px;font-size:12px;margin-bottom:6px;align-items:flex-start;}
+  .row b{flex:0 0 60px;color:#6B7280;font-weight:600;}
+  .row span{word-break:break-word;}
+  button{width:100%;cursor:pointer;border-radius:8px;border:1px solid #3454D1;background:#3454D1;color:#fff;padding:10px;font-size:13px;font-weight:600;margin-top:8px;}
+  button:disabled{opacity:.5;cursor:default;}
+  .status{margin-top:12px;font-size:12px;padding:8px 10px;border-radius:8px;display:none;}
+  .status.ok{display:block;background:#E7F6EC;color:#1E7B3C;}
+  .status.err{display:block;background:#FDECEC;color:#B3261E;}
+  .card{background:#fff;border:1px solid #E2E5EE;border-radius:10px;padding:12px;margin-bottom:12px;}
+  .hint{color:#9AA1B4;font-size:11px;margin:0 0 12px;}
+</style>
+</head>
+<body>
+  <h1>프로젝트 메일 수신처</h1>
+  <p class="hint">프로젝트를 고르고 아래 버튼을 누르면 현재 작성 중인 메일에 받는사람·참조·숨은참조가 채워져요.</p>
+  <select id="proj"></select>
+  <div class="card">
+    <div class="row"><b>받는사람</b><span id="v-to">—</span></div>
+    <div class="row"><b>참조</b><span id="v-cc">—</span></div>
+    <div class="row"><b>숨은참조</b><span id="v-bcc">—</span></div>
+  </div>
+  <button id="apply-btn">이 메일에 채우기</button>
+  <div class="status" id="status"></div>
+
+<script>
+var DATA = [{"id":"win-solo","name":"Windows 단품","to":["Khal Euiseop Lee","Jason Jaeho Shin","Jay Jincheol Kang"],"cc":["Eamon Seungmin Lee","Jack Junhyung Choi","Danny Doyeob Kim","Goody Yonggu Koo","Eric Juyoung Kim"],"bcc":["Ellen Younghwa Jung","Esther Seojung Yang","Ellie Jeongwon Kim","Mia Bolim Kim","kevin.j.jang@polarisoffice.com"]},{"id":"win-global","name":"Windows 글로벌","to":["Khal Euiseop Lee","Jason Jaeho Shin","Jay Jincheol Kang"],"cc":["Eamon Seungmin Lee","Jack Junhyung Choi","Danny Doyeob Kim","Goody Yonggu Koo","Eric Juyoung Kim"],"bcc":["Ellen Younghwa Jung","Esther Seojung Yang","Ellie Jeongwon Kim","Mia Bolim Kim","kevin.j.jang@polarisoffice.com"]},{"id":"mac-solo","name":"macOS 단품","to":["Hugo Seongjae Kwon","Eugene Youjin Jeon"],"cc":["Eamon Seungmin Lee","Jack Junhyung Choi","Danny Doyeob Kim","Goody Yonggu Koo","Eric Juyoung Kim"],"bcc":["Ellen Younghwa Jung","Esther Seojung Yang","Ellie Jeongwon Kim","Mia Bolim Kim","kevin.j.jang@polarisoffice.com"]},{"id":"mac-global","name":"macOS 글로벌","to":["Hugo Seongjae Kwon","Eugene Youjin Jeon"],"cc":["Eamon Seungmin Lee","Jack Junhyung Choi","Danny Doyeob Kim","Goody Yonggu Koo","Eric Juyoung Kim"],"bcc":["Ellen Younghwa Jung","Esther Seojung Yang","Ellie Jeongwon Kim","Mia Bolim Kim","kevin.j.jang@polarisoffice.com"]},{"id":"android","name":"Android","to":["Randy Sangyoon Shin","Allen Kyehyung Lee","Chloe Jeongjoo Lee","alfred.j.jeong@polarisoffice.com"],"cc":["Eamon Seungmin Lee","Jack Junhyung Choi","Danny Doyeob Kim","Goody Yonggu Koo","Eric Juyoung Kim","jack.j.choi@polarisoffice.com"],"bcc":["Ellen Younghwa Jung","Esther Seojung Yang","Ellie Jeongwon Kim","Mia Bolim Kim","kevin.j.jang@polarisoffice.com"]},{"id":"ios","name":"iOS","to":["Conrad Seungmin Yoon","Zedd Hyeonuk Shin","Luka Jeonghun Song"],"cc":["Eamon Seungmin Lee","Jack Junhyung Choi","Danny Doyeob Kim","Goody Yonggu Koo","Eric Juyoung Kim"],"bcc":["Ellen Younghwa Jung","Esther Seojung Yang","Ellie Jeongwon Kim","Mia Bolim Kim","kevin.j.jang@polarisoffice.com"]},{"id":"web","name":"Web","to":["Silvia Jayoung Jeong","John Byungwook Ha","zena.j.ryu@polarisoffice.com"],"cc":["Eamon Seungmin Lee","Jack Junhyung Choi","Danny Doyeob Kim","Goody Yonggu Koo","Eric Juyoung Kim"],"bcc":["Ellen Younghwa Jung","Esther Seojung Yang","Ellie Jeongwon Kim","Mia Bolim Kim","kevin.j.jang@polarisoffice.com"]},{"id":"proj-1789613014645","name":"SDK5.0(iOS)","to":["Jason Wongu Ji","Helen Chanmi Hwang"],"cc":["Eamon Seungmin Lee","Jack Junhyung Choi","freeguy4@polarisoffice.com","Danny Doyeob Kim","Victor Kyungdong Lee"],"bcc":["Ellen Younghwa Jung","Esther Seojung Yang","Ellie Jeongwon Kim","Mia Bolim Kim","kevin.j.jang@polarisoffice.com"]},{"id":"proj-1789614653627","name":"SDK5,0(Android)","to":["Noah Donghyun Kim","Collin Sangjun Shon","Leo Euichang Lee"],"cc":["Eamon Seungmin Lee","Jack Junhyung Choi","Danny Doyeob Kim","freeguy4@polarisoffice.com","Victor Kyungdong Lee"],"bcc":["Ellen Younghwa Jung","Esther Seojung Yang","Ellie Jeongwon Kim","Mia Bolim Kim","kevin.j.jang@polarisoffice.com"]},{"id":"proj-1789615088196","name":"DOC(Window 구축형 공동편집)","to":["milo.m.lee@polarisoffice.com","Isaac Kwangmin Kim","Zeid Youngjak Kim","jean.h.kim@polarisoffice.com","logan.s.yoo@polarisoffice.com"],"cc":["Eamon Seungmin Lee","Jack Junhyung Choi"],"bcc":["Ellen Younghwa Jung","Esther Seojung Yang","Ellie Jeongwon Kim","Mia Bolim Kim","kevin.j.jang@polarisoffice.com"]}];
+
+function currentProject(){
+  var sel = document.getElementById('proj');
+  return DATA[sel.value];
+}
+function renderPreview(){
+  var p = currentProject();
+  document.getElementById('v-to').textContent = (p.to||[]).join('; ') || '—';
+  document.getElementById('v-cc').textContent = (p.cc||[]).join('; ') || '—';
+  document.getElementById('v-bcc').textContent = (p.bcc||[]).join('; ') || '—';
+}
+function showStatus(msg, ok){
+  var el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status ' + (ok ? 'ok' : 'err');
+}
+function setRecipients(field, list){
+  return new Promise(function(resolve, reject){
+    Office.context.mailbox.item[field].setAsync(list || [], function(result){
+      if(result.status === Office.AsyncResultStatus.Succeeded) resolve();
+      else reject(result.error);
+    });
+  });
+}
+
+Office.onReady(function(info){
+  var sel = document.getElementById('proj');
+  DATA.forEach(function(p, i){
+    var o = document.createElement('option');
+    o.value = i;
+    o.textContent = p.name;
+    sel.appendChild(o);
+  });
+  sel.addEventListener('change', renderPreview);
+  renderPreview();
+
+  if(!info.host || info.host !== Office.HostType.Outlook){
+    showStatus('이 화면은 Outlook 메일 작성 창에서 열어야 해요.', false);
+    document.getElementById('apply-btn').disabled = true;
+    return;
+  }
+
+  document.getElementById('apply-btn').addEventListener('click', function(){
+    var btn = document.getElementById('apply-btn');
+    btn.disabled = true;
+    var p = currentProject();
+    setRecipients('to', p.to)
+      .then(function(){ return setRecipients('cc', p.cc); })
+      .then(function(){ return setRecipients('bcc', p.bcc); })
+      .then(function(){
+        showStatus('받는사람·참조·숨은참조를 채웠어요!', true);
+        btn.disabled = false;
+      })
+      .catch(function(err){
+        showStatus('채우는 중 오류가 발생했어요: ' + (err && err.message ? err.message : '알 수 없는 오류'), false);
+        btn.disabled = false;
+      });
+  });
+});
+</script>
+</body>
+</html>
